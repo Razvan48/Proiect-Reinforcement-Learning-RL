@@ -1,0 +1,18 @@
+Module necesare:
+
+gymnasium (OpenAI Gym e deprecated)
+
+
+
+
+Pentru instalare environment Humanoid (folosim Humanoid-v5):
+
+pip install "gymnasium[mujoco]"
+
+
+
+
+
+
+
+
