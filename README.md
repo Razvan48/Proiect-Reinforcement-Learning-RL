@@ -17,8 +17,9 @@ si vom compara implementarile.
 
 ## Task List:
 * [x] Integrare Humanoid Environment si rulare.
-* [ ] Alegerea anumitor agenti pentru implementare (ex. Monte Carlo) 2-3 ar fi de ajuns.
-* [ ] Crearea environmentului custom pentru obiectivele proiectului (humanoid-ul sa alerge, evite obstacole, etc.) si compararea implementarilor agentilor.
+* [x] Alegerea anumitor agenti pentru implementare:
+    * [ ] Monte Carlo
+    * [ ] Deep Q Learning 
 * [ ] Documentatie.
 
 <br/>
