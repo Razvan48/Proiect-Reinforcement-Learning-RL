@@ -11,6 +11,12 @@ pip install "gymnasium[mujoco]"
 
 
 
+Folosim TensorFlow Keras.
+
+
+
+
+
 
 
 
