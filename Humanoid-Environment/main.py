@@ -1,27 +1,35 @@
 import gymnasium as gym
+import sys
+import AgentManager as AM
+from Configuration import Configuration as Conf
 
-env = gym.make("Humanoid-v5", render_mode="human")
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python main.py <AgentName> where AgentName is one of the following: DeepQLearningAgent, MonteCarloAgent")
+        sys.exit(1)
+    
+    # create environment for Humanoid-v5
+    env = gym.make("Humanoid-v5", render_mode="human")
 
-obs, info = env.reset(seed=0)
+    # define the agent to be used and train it based on the environment
+    agent = AM.AgentManager(sys.argv[1])
+    agent.train_agent(env)
+    
+    # declare general configuration
+    conf = Conf.Configuration()
+    
+    # test the agent
+    obs, info = env.reset(seed=0)
+    for _ in range(conf.NUM_ITERATIONS):
+        # TODO - update choose_action method in MonteCarlo.py and DeepQLearning.py
+        # action = agent.choose_action(obs)
+        action = env.action_space.sample()
+        obs, reward, done, truncated, info = env.step(action)
 
-print('Initial Observation Shape:', obs.shape)
-print('Initial Observation:', obs)
-
-print('Action Space Shape:', env.action_space.shape)
-print('Action Space:', env.action_space)
-
-print('Observation Space Shape:', env.observation_space.shape)
-print('Observation Space:', env.observation_space)
-
-
-NUM_ITERATIONS = 1000
-for _ in range(NUM_ITERATIONS):
-    action = env.action_space.sample()
-    obs, reward, done, truncated, info = env.step(action)
-
-    env.render()
-
-
-
-
-env.close()
+        env.render()
+    
+    env.close()
+    
+if __name__ == "__main__":
+    main()
+    
