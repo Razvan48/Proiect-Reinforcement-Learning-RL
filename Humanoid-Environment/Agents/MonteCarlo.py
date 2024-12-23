@@ -3,13 +3,14 @@ import gymnasium as gym
 from Helper import Helper as hp
 
 class MonteCarlo:
-    def __init__(self, gamma=0.99, epsilon=0.1, num_episodes=5000):
+    def __init__(self, gamma=0.99, epsilon=0.1, num_episodes=100000):
         self.gamma = gamma
         self.epsilon = epsilon
         self.num_episodes = num_episodes
         self.policy = {} 
         self.returns = {} 
         self.Q = {}
+        self.Q_actions = {}
         self.helper = hp.Helper()
         self.action_low = None  
         self.action_high = None  
@@ -44,7 +45,6 @@ class MonteCarlo:
 
     def monte_carlo_policy_update(self, episode):
         """Update policy using Monte Carlo returns."""
-        G = 0  
 
         first_visit_state_actions = {}
 
@@ -54,20 +54,32 @@ class MonteCarlo:
             if (state_key, tuple(action)) not in first_visit_state_actions:
                 first_visit_state_actions[(state_key, tuple(action))] = t
 
+        G = 0  
         for t in reversed(range(len(episode))):
             state, action, reward = episode[t]
             state_key = self.helper.discretize_state(state)
             G = reward + self.gamma * G 
 
-            if t == first_visit_state_actions[(state_key, tuple(action))]:
+            action = tuple(action)
 
-                if (state_key, tuple(action)) not in self.returns:
-                    self.returns[(state_key, tuple(action))] = []
-                self.returns[(state_key, tuple(action))].append(G)
+            if t == first_visit_state_actions[(state_key, action)]:
+                if (state_key, action) not in self.returns:
+                    self.returns[(state_key, action)] = []
+                self.returns[(state_key, action)].append(G)
 
-                self.Q[(state_key, tuple(action))] = np.mean(self.returns[(state_key, tuple(action))])
+                self.Q[(state_key, action)] = np.mean(self.returns[(state_key, action)])
 
-                self.policy[state_key] = max(self.Q, key=self.Q.get)[1]
+                if state_key not in self.Q_actions:
+                    self.Q_actions[state_key] = []
+                self.Q_actions[state_key].append(action)
+                
+                Max = 0
+                for action_in_Q in self.Q_actions[state_key]:
+                    if self.Q[(state_key, action_in_Q)] > Max:
+                        Max = self.Q[(state_key, action_in_Q)]
+                        self.policy[state_key] = action_in_Q
+
+                # print(self.policy[state_key])
 
 
     def generate_episode(self, env):
