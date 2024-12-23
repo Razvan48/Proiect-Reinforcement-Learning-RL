@@ -6,4 +6,4 @@ class Helper:
     
     def discretize_state(self, state):
         """Discretize continuous state as hashable state."""
-        return tuple(state)
+        return tuple(np.round(state, 1))

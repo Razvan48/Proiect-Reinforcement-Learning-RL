@@ -20,14 +20,14 @@ def main():
     conf = Conf.Configuration()
     helper = hp.Helper()
     
-    # test the agent
+    # test the agent on the environment
     state, info = env.reset(seed=0)
     for _ in range(conf.NUM_ITERATIONS):
         # TODO - update choose_action method in MonteCarlo.py and DeepQLearning.py
         state = helper.discretize_state(state)
         action = agent.choose_action(state)
         action = env.action_space.sample()
-        obs, reward, done, truncated, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
 
         env.render()
     

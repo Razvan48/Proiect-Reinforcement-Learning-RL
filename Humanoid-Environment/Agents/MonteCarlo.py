@@ -9,6 +9,7 @@ class MonteCarlo:
         self.num_episodes = num_episodes
         self.policy = {} 
         self.returns = {} 
+        self.Q = {}
         self.helper = hp.Helper()
         self.action_low = None  
         self.action_high = None  
@@ -23,7 +24,7 @@ class MonteCarlo:
         self.state_space = env.observation_space.shape[0]
         
         self.policy = {
-            state: (np.zeros(env.action_space.shape), np.ones(env.action_space.shape) * 0.4)
+            state: tuple(np.zeros(env.action_space.shape))
             for state in range(self.state_space)
         }
 
@@ -32,41 +33,42 @@ class MonteCarlo:
         state_key = self.helper.discretize_state(state)
         
         if state_key not in self.policy:
-            self.policy[state_key] = (np.zeros(self.action_low.shape), np.ones(self.action_low.shape) * 0.4)
-        
-        mean, std_dev = self.policy[state_key]
-        
-        if np.random.rand() > self.epsilon:
-            action = np.random.normal(mean, std_dev)
-        else:
-            action = np.random.uniform(self.action_low, self.action_high)
+            self.policy[state_key] = tuple(np.random.uniform(self.action_low, self.action_high))
 
-        return np.clip(action, self.action_low, self.action_high)
+        if np.random.rand() > self.epsilon:
+            action = self.policy[state_key] 
+        else:
+            action = tuple(np.random.uniform(self.action_low, self.action_high))
+
+        return action
 
     def monte_carlo_policy_update(self, episode):
         """Update policy using Monte Carlo returns."""
-        G = 0  # Initialize return
-        visited_state_actions = set()
+        G = 0  
+
+        first_visit_state_actions = {}
+
+        for t in range(len(episode)):   
+            state, action, reward = episode[t]
+            state_key = self.helper.discretize_state(state)
+            if (state_key, tuple(action)) not in first_visit_state_actions:
+                first_visit_state_actions[(state_key, tuple(action))] = t
 
         for t in reversed(range(len(episode))):
             state, action, reward = episode[t]
             state_key = self.helper.discretize_state(state)
-            G = reward + self.gamma * G
-            
-            action = tuple(action)
+            G = reward + self.gamma * G 
 
-            if (state_key, action) not in visited_state_actions:
-                visited_state_actions.add((state_key, action))
-                if (state_key, action) not in self.returns:
-                    self.returns[(state_key, action)] = []
-                self.returns[(state_key, action)].append(G)
+            if t == first_visit_state_actions[(state_key, tuple(action))]:
 
-                # Update policy for the state
-                action_values = [
-                    np.mean(self.returns[(state_key, a)]) if (state_key, a) in self.returns else 0
-                    for a in range(self.action_space)
-                ]
-                self.policy[state_key] = np.argmax(action_values)
+                if (state_key, tuple(action)) not in self.returns:
+                    self.returns[(state_key, tuple(action))] = []
+                self.returns[(state_key, tuple(action))].append(G)
+
+                self.Q[(state_key, tuple(action))] = np.mean(self.returns[(state_key, tuple(action))])
+
+                self.policy[state_key] = max(self.Q, key=self.Q.get)[1]
+
 
     def generate_episode(self, env):
         """Generate an episode using the current policy."""
