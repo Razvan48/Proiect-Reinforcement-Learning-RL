@@ -18,9 +18,9 @@ si vom compara implementarile.
 ## Task List:
 * [x] Integrare Humanoid Environment si rulare.
 * [x] Alegerea anumitor agenti pentru implementare:
-    * [ ] Monte Carlo
+    * [x] Monte Carlo
     * [ ] Deep Q Learning
-    * [ ] Proximal Policy Optimization
+    * [x] Proximal Policy Optimization
 * [ ] Documentatie.
 
 <br/>
