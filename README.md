@@ -19,7 +19,8 @@ si vom compara implementarile.
 * [x] Integrare Humanoid Environment si rulare.
 * [x] Alegerea anumitor agenti pentru implementare:
     * [ ] Monte Carlo
-    * [ ] Deep Q Learning 
+    * [ ] Deep Q Learning
+    * [ ] Proximal Policy Optimization
 * [ ] Documentatie.
 
 <br/>
