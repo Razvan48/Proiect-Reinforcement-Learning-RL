@@ -2,7 +2,6 @@ import gymnasium as gym
 import sys
 import AgentManager as AM
 from Configuration import Configuration as Conf
-from Helper import Helper as hp
 
 def main():
     if len(sys.argv) != 2:
@@ -18,15 +17,12 @@ def main():
     
     # declare general configuration
     conf = Conf.Configuration()
-    helper = hp.Helper()
     
     # test the agent on the environment
     state, info = env.reset(seed=0)
     for _ in range(conf.NUM_ITERATIONS):
         # TODO - update choose_action method in MonteCarlo.py and DeepQLearning.py
-        state = helper.discretize_state(state)
         action = agent.choose_action(state)
-        action = env.action_space.sample()
         state, reward, done, truncated, info = env.step(action)
 
         env.render()
