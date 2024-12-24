@@ -13,6 +13,7 @@ def main():
 
     # define the agent to be used and train it based on the environment
     agent = AM.AgentManager(sys.argv[1])
+
     agent.train_agent(env)
     
     # declare general configuration

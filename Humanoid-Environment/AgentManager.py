@@ -1,5 +1,6 @@
 from Agents import DeepQLearning as DQL
 from Agents import MonteCarlo as MC
+from Agents import ProximalPolicyOptimization as PPO
 import gymnasium as gym
 
 class AgentManager:
@@ -12,6 +13,8 @@ class AgentManager:
             return DQL.DeepQLearning()
         elif self.agent_name == 'MonteCarloAgent':
             return MC.MonteCarlo()
+        elif self.agent_name == 'ProximalPolicyOptimizationAgent':
+            return PPO.ProximalPolicyOptimization()
         else:
             raise ValueError('Agent not found')
             
