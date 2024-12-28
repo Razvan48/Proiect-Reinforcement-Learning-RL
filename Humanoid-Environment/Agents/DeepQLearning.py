@@ -172,7 +172,7 @@ class DeepQLearning:
 
 
 
-    def chooseAction(self, state):
+    def choose_action(self, state):
         state = self.simplifyState(state)
         output = self.targetQneuralNetwork.predict(state)[0]
         actions = self.convertNetworkOutputToActions(output)
