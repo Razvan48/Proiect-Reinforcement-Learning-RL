@@ -1,5 +1,6 @@
 import gymnasium as gym
 import numpy as np
+import os
 
 import tensorflow as tf
 #from tensorflow.keras.models import Sequential
@@ -228,3 +229,18 @@ class DeepQLearning:
         output = self.targetQNeuralNetwork.predict(state.reshape(1, self.INPUT_DIM))[0]
         actions, scores = self.convertNetworkOutputToActions(output)
         return actions[np.argmax(scores)]
+
+
+
+    def save_model(self, file_name):
+        DIRECTORY_PATH = 'Data/DeepNetworks/'
+        os.makedirs(DIRECTORY_PATH, exist_ok=True)
+        self.targetQNeuralNetwork.save(DIRECTORY_PATH + file_name)
+
+
+
+    def load_model(self, file_name, env):
+        DIRECTORY_PATH = 'Data/DeepNetworks/'
+        self.targetQNeuralNetwork = tf.keras.models.load_model(DIRECTORY_PATH + file_name)
+
+
