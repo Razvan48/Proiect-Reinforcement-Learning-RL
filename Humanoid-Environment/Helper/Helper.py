@@ -31,3 +31,19 @@ class Helper:
         continuous_action = [bin_centers[i] for i in discretized_action]
 
         return tuple(continuous_action)
+    
+    def save_model(self, policy, file_name):
+        """Save the policy to the specified file name."""
+        with open(file_name, "w") as f:
+            for state, action in policy.items():
+                f.write(f"{state}: {action}\n")
+
+    def load_model(self, file_name):
+        """Load the policy from the specified file name."""
+        policy = {}
+        with open(file_name, "r") as f:
+            for line in f:
+                state, action = line.split(": ")
+                cleaned_action = action[1:len(action) - 1].replace(')', '').replace(' ', '')
+                policy[state] = tuple(map(int, cleaned_action.split(',')))
+        return policy

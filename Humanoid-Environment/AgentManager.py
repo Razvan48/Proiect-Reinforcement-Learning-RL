@@ -23,3 +23,9 @@ class AgentManager:
         
     def choose_action(self, obs):
         return self.agent.choose_action(obs)
+    
+    def save_model(self, file_name):
+        self.agent.save_model(file_name)
+    
+    def load_model(self, file_name, env):
+        self.agent.load_model(file_name, env)

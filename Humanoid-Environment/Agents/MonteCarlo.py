@@ -3,14 +3,14 @@ import gymnasium as gym
 from collections import defaultdict
 from Helper import Helper as hp
 from Configuration import Configuration as Conf
+import os
 
 class MonteCarlo:
-    def __init__(self, gamma=0.95, epsilon=1.0, num_episodes=5000, epsilon_decay=0.999, min_epsilon=0.1):
+    def __init__(self, gamma=0.95, epsilon=1.0, epsilon_decay=0.999, min_epsilon=0.1):
         self.gamma = gamma
         self.epsilon_decay = epsilon_decay
         self.min_epsilon = min_epsilon
         self.epsilon = epsilon
-        self.num_episodes = num_episodes
         self.policy = {} 
         self.Q = defaultdict()
         self.Q_n = defaultdict()
@@ -22,6 +22,7 @@ class MonteCarlo:
         self.state_space = None 
         self.action_space = None
         self.UPDATE_POLICY_EVERY = self.conf.UPDATE_POLICY_EVERY
+        self.directory_path = "data/MonteCarlo/"
 
     def initialize_policy(self, env):
         """Initialize policy for continuous action space."""
@@ -123,6 +124,7 @@ class MonteCarlo:
         """Train the agent using the Monte Carlo method."""
         self.initialize_policy(env)
         rewards_history = [] 
+        self.num_episodes = self.conf.N_EPISODES
 
         for episode in range(1, self.num_episodes + 1):
             episode_data = self.generate_episode(env)
@@ -142,3 +144,12 @@ class MonteCarlo:
                 print(f"Episode {episode} complete - Average Reward: {avg_reward:.2f} - Max Reward: {max_reward:.2f}")
         
         self.update_policy()
+
+    def save_model(self, file_name):
+        """Save the policy to the specified file name."""
+        os.makedirs(self.directory_path, exist_ok=True)
+        self.helper.save_model(self.policy, self.directory_path + file_name)
+        
+    def load_model(self, file_name, env):
+        """Load the policy from the specified file name."""
+        self.policy = self.helper.load_model(self.directory_path + file_name)

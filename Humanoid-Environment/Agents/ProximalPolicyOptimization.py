@@ -14,6 +14,7 @@ class ProximalPolicyOptimization:
         self.verbose = 1
         self.conf = Conf.Configuration()
         self.model = None
+        self.data_directory_path = "data/ProximalPolicyOptimization/"
 
     def initAgent(self, env):
         '''Initialize the agent with the environment'''
@@ -35,7 +36,7 @@ class ProximalPolicyOptimization:
         '''Train the agent based on the environment'''
         if self.model is None:
             self.initAgent(env)
-        self.model.learn(total_timesteps=self.conf.PPO_TOTAL_TIMESTEPS)
+        self.model.learn(total_timesteps=self.conf.N_EPISODES)
 
     def choose_action(self, state):
         '''Choose an action based on the state'''
@@ -44,8 +45,10 @@ class ProximalPolicyOptimization:
 
     def save_model(self, file_name):
         '''Save the model to the specified file name'''
-        self.model.save(file_name)
+        self.model.save(self.data_directory_path + file_name)
 
-    def load_model(self, file_name):
+    def load_model(self, file_name, env):
         '''Load the model from the specified file name'''
-        self.model = PPO.load(file_name)
+        self.model = PPO.load(self.data_directory_path + file_name)
+        self.model.set_env(env)
+
