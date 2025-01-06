@@ -236,11 +236,21 @@ class DeepQLearning:
         DIRECTORY_PATH = 'Data/DeepNetworks/'
         os.makedirs(DIRECTORY_PATH, exist_ok=True)
         self.targetQNeuralNetwork.save(DIRECTORY_PATH + file_name)
+        # self.targetQNeuralNetwork.compile(optimizer='adam', loss='mse')
+
+        self.qNeuralNetwork = tf.keras.models.clone_model(self.targetQNeuralNetwork)
+        self.qNeuralNetwork.set_weights(self.targetQNeuralNetwork.get_weights())
+        self.qNeuralNetwork.compile(optimizer='adam', loss='mse')
 
 
 
     def load_model(self, file_name, env):
         DIRECTORY_PATH = 'Data/DeepNetworks/'
         self.targetQNeuralNetwork = tf.keras.models.load_model(DIRECTORY_PATH + file_name)
+        self.targetQNeuralNetwork.compile(optimizer='adam', loss='mse')
+
+        self.qNeuralNetwork = tf.keras.models.clone_model(self.targetQNeuralNetwork)
+        self.qNeuralNetwork.set_weights(self.targetQNeuralNetwork.get_weights())
+        self.qNeuralNetwork.compile(optimizer='adam', loss='mse')
 
 
