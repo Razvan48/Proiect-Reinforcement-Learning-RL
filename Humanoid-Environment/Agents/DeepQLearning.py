@@ -205,10 +205,11 @@ class DeepQLearning:
                 nextStates = np.array([nextState for _, _, _, nextState, _ in batch])
                 qValues = self.qNeuralNetwork.forward(states)
                 targetValues = self.targetQNeuralNetwork.forward(nextStates)
+                targetValues = targetValues.detach().numpy()
 
                 for i, (state, action, reward, nextState, done) in enumerate(batch):
                     qValue = qValues[i][self.getActionIndexInOutput(action)]
-                    targetValue = targetValues[i].max()
+                    targetValue = np.max(targetValues[i])
 
                     targetQValue = reward + self.GAMMA * targetValue
                     qValues[i][self.getActionIndexInOutput(action)] = targetQValue
