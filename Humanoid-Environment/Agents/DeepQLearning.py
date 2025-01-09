@@ -2,13 +2,14 @@ import gymnasium as gym
 import numpy as np
 import os
 
-import tensorflow as tf
+#import tensorflow as tf
 #from tensorflow.keras.models import Sequential
 #from tensorflow.keras.layers import Dense
 #from tensorflow.keras.models import clone_model
 
 import Helper
 
+from Models.NN import NN
 
 
 class DeepQLearning:
@@ -29,6 +30,7 @@ class DeepQLearning:
         self.INPUT_DIM = self.ENV_OBSERVATION_SPACE
         self.OUTPUT_DIM = self.ENV_ACTION_SPACE * self.NUM_BINS_ACTION
 
+        ''' Implementare TensorFlow
         self.qNeuralNetwork = tf.keras.models.Sequential([
                 tf.keras.layers.Dense(2 * self.INPUT_DIM, input_dim=self.INPUT_DIM, activation='relu'),
                 tf.keras.layers.Dense(2 * self.INPUT_DIM, activation='relu'),
@@ -39,6 +41,10 @@ class DeepQLearning:
         self.targetQNeuralNetwork = tf.keras.models.clone_model(self.qNeuralNetwork)
         self.targetQNeuralNetwork.set_weights(self.qNeuralNetwork.get_weights())
         self.targetQNeuralNetwork.compile(optimizer='adam', loss='mse')
+        '''
+
+        self.qNeuralNetwork = NN(self.INPUT_DIM, self.OUTPUT_DIM)
+        self.targetQNeuralNetwork = self.qNeuralNetwork.clone()
 
         self.START_EPSILON = 1.0
         self.EPSILON_DECAY_RATE = 0.999
@@ -88,7 +94,7 @@ class DeepQLearning:
 
     def getEpsilonGreedyAction(self, state):
         state = self.simplifyState(state)
-        output = self.qNeuralNetwork.predict(state.reshape(1, self.INPUT_DIM))[0]
+        output = self.qNeuralNetwork.forward(state.reshape(1, self.INPUT_DIM))[0]
         actions, scores = self.convertNetworkOutputToActions(output)
         if np.random.rand() < self.EPSILON:
             return actions[np.random.randint(len(actions))]
@@ -193,8 +199,8 @@ class DeepQLearning:
                 # Cod optimizat
                 states = np.array([state for state, _, _, _, _ in batch])
                 nextStates = np.array([nextState for _, _, _, nextState, _ in batch])
-                qValues = self.qNeuralNetwork.predict(states)
-                targetValues = self.targetQNeuralNetwork.predict(nextStates)
+                qValues = self.qNeuralNetwork.forward(states)
+                targetValues = self.targetQNeuralNetwork.forward(nextStates)
 
                 for i, (state, action, reward, nextState, done) in enumerate(batch):
                     qValue = qValues[i][self.getActionIndexInOutput(action)]
@@ -205,14 +211,16 @@ class DeepQLearning:
 
                     rewardsHistory.append(reward)
 
-                self.qNeuralNetwork.fit(states, qValues, verbose=0)
+                self.qNeuralNetwork.fit(states, qValues)
 
 
             if numIteration % NUM_ITERATIONS_UNTIL_TARGET_UPDATE == 0:
                 print('Updating target network...')
 
-                self.targetQNeuralNetwork.set_weights(self.qNeuralNetwork.get_weights())
-                self.targetQNeuralNetwork.compile(optimizer='adam', loss='mse')
+                #self.targetQNeuralNetwork.set_weights(self.qNeuralNetwork.get_weights())
+                #self.targetQNeuralNetwork.compile(optimizer='adam', loss='mse')
+
+                self.targetQNeuralNetwork = self.qNeuralNetwork.clone()
 
             self.EPSILON = self.updateEpsilon(numIteration)
             self.GAMMA = self.updateGamma(numIteration)
@@ -226,7 +234,7 @@ class DeepQLearning:
 
     def choose_action(self, state):
         state = self.simplifyState(state)
-        output = self.targetQNeuralNetwork.predict(state.reshape(1, self.INPUT_DIM))[0]
+        output = self.targetQNeuralNetwork.forward(state.reshape(1, self.INPUT_DIM))[0]
         actions, scores = self.convertNetworkOutputToActions(output)
         return actions[np.argmax(scores)]
 
@@ -235,22 +243,35 @@ class DeepQLearning:
     def save_model(self, file_name):
         DIRECTORY_PATH = 'Data/DeepNetworks/'
         os.makedirs(DIRECTORY_PATH, exist_ok=True)
+
+        '''
         self.targetQNeuralNetwork.save(DIRECTORY_PATH + file_name)
         # self.targetQNeuralNetwork.compile(optimizer='adam', loss='mse')
 
         self.qNeuralNetwork = tf.keras.models.clone_model(self.targetQNeuralNetwork)
         self.qNeuralNetwork.set_weights(self.targetQNeuralNetwork.get_weights())
         self.qNeuralNetwork.compile(optimizer='adam', loss='mse')
+        '''
+
+        self.targetQNeuralNetwork.save_model(DIRECTORY_PATH, file_name)
 
 
 
     def load_model(self, file_name, env):
         DIRECTORY_PATH = 'Data/DeepNetworks/'
+
+        '''
         self.targetQNeuralNetwork = tf.keras.models.load_model(DIRECTORY_PATH + file_name)
         self.targetQNeuralNetwork.compile(optimizer='adam', loss='mse')
 
         self.qNeuralNetwork = tf.keras.models.clone_model(self.targetQNeuralNetwork)
         self.qNeuralNetwork.set_weights(self.targetQNeuralNetwork.get_weights())
         self.qNeuralNetwork.compile(optimizer='adam', loss='mse')
+        '''
+
+        self.targetQNeuralNetwork.load_model(DIRECTORY_PATH, file_name)
+        self.qNeuralNetwork = self.targetQNeuralNetwork.clone()
+
+
 
 
