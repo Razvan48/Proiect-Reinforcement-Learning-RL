@@ -2,6 +2,8 @@ import gymnasium as gym
 import numpy as np
 import os
 
+import torch
+
 #import tensorflow as tf
 #from tensorflow.keras.models import Sequential
 #from tensorflow.keras.layers import Dense
@@ -22,7 +24,7 @@ class DeepQLearning:
 
         self.MIN_VALUE_ACTION = -0.4
         self.MAX_VALUE_ACTION = 0.4
-        self.NUM_BINS_ACTION = 4
+        self.NUM_BINS_ACTION = 16
 
         self.ENV_OBSERVATION_SPACE = 348
         self.ENV_ACTION_SPACE = 17
@@ -58,7 +60,7 @@ class DeepQLearning:
 
 
 
-    def simplifyState(self, state : np.ndarray) -> np.ndarray:
+    def simplifyState(self, state):
         return np.round(state, decimals=1)
 
 
@@ -78,7 +80,7 @@ class DeepQLearning:
 
 
 
-    def convertNetworkOutputToActions(self, output : np.ndarray):
+    def convertNetworkOutputToActions(self, output):
         actions = []
         scores = []
         for i in range(len(output)):
@@ -88,13 +90,14 @@ class DeepQLearning:
 
             actions.append(action)
             scores.append(output[i])
-        return (actions, scores)
+        return actions, scores
 
 
 
     def getEpsilonGreedyAction(self, state):
         state = self.simplifyState(state)
         output = self.qNeuralNetwork.forward(state.reshape(1, self.INPUT_DIM))[0]
+        output = output.detach().numpy()
         actions, scores = self.convertNetworkOutputToActions(output)
         if np.random.rand() < self.EPSILON:
             return actions[np.random.randint(len(actions))]
@@ -106,7 +109,7 @@ class DeepQLearning:
     def generateExperienceReplaySamples(self, numSamples : int, env : gym.Env):
         """ Generate Experience Replay Samples """
 
-        WARMUP_STEPS = 10000
+        WARMUP_STEPS = 0
         state, _ = env.reset()
         for _ in range(WARMUP_STEPS):
             action = env.action_space.sample()
@@ -134,7 +137,8 @@ class DeepQLearning:
             raise ValueError('Not enough samples in the Experience Replay List')
 
         # replace=True inseamna ca putem alege acelasi sample de mai multe ori
-        return np.random.choice(self.experienceReplaySamples, size=batchSize, replace=False)
+        positions = np.random.choice(len(self.experienceReplaySamples), size=batchSize, replace=False)
+        return [self.experienceReplaySamples[i] for i in positions]
 
 
 
@@ -156,20 +160,20 @@ class DeepQLearning:
 
 
     def train(self, env):
-        NUM_ITERATIONS = 1000
-        NUM_SUBITERATIONS = 10
+        NUM_ITERATIONS = 10
+        NUM_SUBITERATIONS = 100
 
-        NUM_SAMPLES = 20000
-        BATCH_SIZE = 1024
+        NUM_SAMPLES = 1000
+        BATCH_SIZE = 512
 
-        NUM_ITERATIONS_UNTIL_TARGET_UPDATE = 100
+        NUM_ITERATIONS_UNTIL_TARGET_UPDATE = 2
 
         self.EPSILON = self.START_EPSILON
         self.GAMMA = self.START_GAMMA
 
         rewardsHistory = []
         RECENT_REWARDS_HISTORY_SIZE = 100
-        NUM_ITERATIONS_UNTIL_REWARDS_PRINT = 100
+        NUM_ITERATIONS_UNTIL_REWARDS_PRINT = 1
 
         for numIteration in range(NUM_ITERATIONS):
             print('Iteration:', numIteration)
@@ -204,7 +208,7 @@ class DeepQLearning:
 
                 for i, (state, action, reward, nextState, done) in enumerate(batch):
                     qValue = qValues[i][self.getActionIndexInOutput(action)]
-                    targetValue = np.max(targetValues[i])
+                    targetValue = targetValues[i].max()
 
                     targetQValue = reward + self.GAMMA * targetValue
                     qValues[i][self.getActionIndexInOutput(action)] = targetQValue
@@ -215,7 +219,7 @@ class DeepQLearning:
 
 
             if numIteration % NUM_ITERATIONS_UNTIL_TARGET_UPDATE == 0:
-                print('Updating target network...')
+                #print('Updating target network...')
 
                 #self.targetQNeuralNetwork.set_weights(self.qNeuralNetwork.get_weights())
                 #self.targetQNeuralNetwork.compile(optimizer='adam', loss='mse')
@@ -225,16 +229,17 @@ class DeepQLearning:
             self.EPSILON = self.updateEpsilon(numIteration)
             self.GAMMA = self.updateGamma(numIteration)
 
-            if numIteration % NUM_ITERATIONS_UNTIL_REWARDS_PRINT and len(rewardsHistory) >= RECENT_REWARDS_HISTORY_SIZE:
+            if numIteration % NUM_ITERATIONS_UNTIL_REWARDS_PRINT == 0 and len(rewardsHistory) >= RECENT_REWARDS_HISTORY_SIZE:
                 averageReward = np.mean(rewardsHistory[-RECENT_REWARDS_HISTORY_SIZE:])
                 maximumReward = np.max(rewardsHistory[-RECENT_REWARDS_HISTORY_SIZE:])
-                print(f'Average Reward: {averageReward:.3f} - Maximum Reward: {maximumReward:.3f}')
+                print(f"Iteration {numIteration} complete - Average Reward: {averageReward:.2f} - Max Reward: {maximumReward:.2f}")
 
 
 
     def choose_action(self, state):
         state = self.simplifyState(state)
         output = self.targetQNeuralNetwork.forward(state.reshape(1, self.INPUT_DIM))[0]
+        output = output.detach().numpy()
         actions, scores = self.convertNetworkOutputToActions(output)
         return actions[np.argmax(scores)]
 
