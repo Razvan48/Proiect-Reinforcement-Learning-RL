@@ -109,7 +109,7 @@ class DeepQLearning:
     def generateExperienceReplaySamples(self, numSamples : int, env : gym.Env):
         """ Generate Experience Replay Samples """
 
-        WARMUP_STEPS = 0
+        WARMUP_STEPS = np.random.randint(0, 1001)
         state, _ = env.reset()
         for _ in range(WARMUP_STEPS):
             action = env.action_space.sample()
@@ -160,13 +160,13 @@ class DeepQLearning:
 
 
     def train(self, env):
-        NUM_ITERATIONS = 10
-        NUM_SUBITERATIONS = 100
+        NUM_ITERATIONS = 30
+        NUM_SUBITERATIONS = 10
 
-        NUM_SAMPLES = 1000
+        NUM_SAMPLES = 10000
         BATCH_SIZE = 512
 
-        NUM_ITERATIONS_UNTIL_TARGET_UPDATE = 2
+        NUM_ITERATIONS_UNTIL_TARGET_UPDATE = 6
 
         self.EPSILON = self.START_EPSILON
         self.GAMMA = self.START_GAMMA
