@@ -7,12 +7,11 @@ class Helper:
     def discretize_state(self, state):
         """Discretize continuous state as hashable state."""
         state = np.round(state, 1)
-        state = np.clip(state, -10, 10)
         return tuple(state)
     
     def discretize_action(self, action):
         """Discretize continuous action into numbered bins in the range [-0.4, 0.4]."""
-        num_bins = self.conf.NUM_BINS_ACTION  
+        num_bins = self.conf.NUM_BINS_ACTION  # 4
         action_min, action_max = -0.4, 0.4  
 
         bins = np.linspace(action_min, action_max, num_bins + 1)  

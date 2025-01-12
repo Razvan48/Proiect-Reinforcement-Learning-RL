@@ -9,7 +9,7 @@ class SingletonMeta(type):
 class Configuration(metaclass=SingletonMeta):
     def __init__(self):
         self.NUM_ITERATIONS = 1000 
-        self.NUM_BINS_ACTION = 10
+        self.NUM_BINS_ACTION = 4
         self.UPDATE_POLICY_EVERY = 20
         self.N_EPISODES = 1000000
         self.N_EPISODES_TEST = 1000

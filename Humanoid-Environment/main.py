@@ -2,6 +2,7 @@ import gymnasium as gym
 import sys
 import AgentManager as AM
 from Configuration import Configuration as Conf
+from matplotlib import pyplot as plt
 
 def main():
     if len(sys.argv) != 2:
@@ -51,6 +52,12 @@ def main():
     print("Average Reward: ", average_reward)
 
     env.close()
+
+    plt.plot(total_reward)
+    plt.xlabel("Episode")
+    plt.ylabel("Total Reward")
+    plt.title("Total Reward per Episode" + " - Average Reward: " + str(average_reward))
+    plt.show()
 
     # save the model
     print("Saving model...")
