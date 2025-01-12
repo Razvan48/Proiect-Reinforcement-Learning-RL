@@ -164,7 +164,7 @@ class DeepQLearning:
 
 
     def train(self, env):
-        NUM_ITERATIONS = self.conf.NUM_ITERATIONS
+        NUM_ITERATIONS = self.conf.N_EPISODES
         NUM_SUBITERATIONS = 18
 
         NUM_SAMPLES = 10000
