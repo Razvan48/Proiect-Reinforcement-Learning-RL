@@ -11,6 +11,8 @@ import torch
 
 import Helper
 
+from Configuration import Configuration as Conf
+
 from Models.NN import NN
 
 
@@ -57,6 +59,8 @@ class DeepQLearning:
         self.GAMMA_DECAY_RATE = 0.999
         self.MIN_GAMMA = 0.1
         self.GAMMA = self.START_GAMMA
+
+        self.conf = Conf.Configuration()
 
 
 
@@ -109,7 +113,7 @@ class DeepQLearning:
     def generateExperienceReplaySamples(self, numSamples : int, env : gym.Env):
         """ Generate Experience Replay Samples """
 
-        WARMUP_STEPS = np.random.randint(0, 1001)
+        WARMUP_STEPS = np.random.randint(0, np.random.randint(80, 91))
         state, _ = env.reset()
         for _ in range(WARMUP_STEPS):
             action = env.action_space.sample()
@@ -160,8 +164,8 @@ class DeepQLearning:
 
 
     def train(self, env):
-        NUM_ITERATIONS = 30
-        NUM_SUBITERATIONS = 10
+        NUM_ITERATIONS = self.conf.NUM_ITERATIONS
+        NUM_SUBITERATIONS = 18
 
         NUM_SAMPLES = 10000
         BATCH_SIZE = 512
@@ -234,6 +238,8 @@ class DeepQLearning:
                 averageReward = np.mean(rewardsHistory[-RECENT_REWARDS_HISTORY_SIZE:])
                 maximumReward = np.max(rewardsHistory[-RECENT_REWARDS_HISTORY_SIZE:])
                 print(f"Iteration {numIteration} complete - Average Reward: {averageReward:.2f} - Max Reward: {maximumReward:.2f}")
+
+        self.targetQNeuralNetwork = self.qNeuralNetwork.clone()
 
 
 
