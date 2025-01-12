@@ -222,6 +222,9 @@ class DeepQLearning:
 
                 self.qNeuralNetwork.fit(states, qValues)
 
+                #self.EPSILON = self.updateEpsilon(numIteration * NUM_SUBITERATIONS + numSubiteration)
+                #self.GAMMA = self.updateGamma(numIteration * NUM_SUBITERATIONS + numSubiteration)
+
 
             if numIteration % NUM_ITERATIONS_UNTIL_TARGET_UPDATE == 0:
                 #print('Updating target network...')
