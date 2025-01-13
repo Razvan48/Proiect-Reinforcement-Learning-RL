@@ -69,14 +69,14 @@ class DeepQLearning:
 
 
 
-    def convertFromBinToValue(self, bin: int) -> float:
+    def convertFromBinToValue(self, bin : int) -> float:
         binSize = (self.MAX_VALUE_ACTION - self.MIN_VALUE_ACTION) / self.NUM_BINS_ACTION
         value = bin * binSize + self.MIN_VALUE_ACTION + binSize / 2
         return value
 
 
 
-    def convertFromValueToBin(self, value: float) -> int:
+    def convertFromValueToBin(self, value : float) -> int:
         DELTA = 0.0001
         binSize = (self.MAX_VALUE_ACTION - self.MIN_VALUE_ACTION) / self.NUM_BINS_ACTION
         bin = (value - self.MIN_VALUE_ACTION) / binSize
