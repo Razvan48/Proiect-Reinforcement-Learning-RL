@@ -4,6 +4,7 @@ from collections import defaultdict
 from Helper import Helper as hp
 from Configuration import Configuration as Conf
 import os
+import math
 
 class MonteCarlo:
     def __init__(self, gamma=0.95, epsilon=1.0, epsilon_decay=0.999, min_epsilon=0.1):
@@ -32,14 +33,14 @@ class MonteCarlo:
         self.state_space = env.observation_space.shape[0]
         
 
-    def choose_action(self, state):
+    def choose_action(self, state, epsilon=0):
         """Choose an action based on the epsilon-greedy policy."""
         state_key = self.helper.discretize_state(state)
         
         if state_key not in self.policy:
             self.policy[state_key] = self.helper.discretize_action(np.random.uniform(self.action_low, self.action_high))
 
-        if np.random.rand() > self.epsilon:
+        if np.random.rand() > epsilon:
             action = self.policy[state_key] 
         else:
             action = self.helper.discretize_action(np.random.uniform(self.action_low, self.action_high))
@@ -91,7 +92,7 @@ class MonteCarlo:
 
 
             self.Q_n[state_key][action] += 1
-            alpha = min(1, 1.0 / self.Q_n[state_key][action] * (self.Q_n[state_key][action] / 3))
+            alpha = min(1, 1.0 / math.sqrt(self.Q_n[state_key][action]))
             self.Q[state_key][action] = self.Q[state_key][action] + alpha * (G - self.Q[state_key][action])
 
     def update_policy(self):
@@ -113,7 +114,7 @@ class MonteCarlo:
         done = False
 
         while not done:
-            action = self.choose_action(state)
+            action = self.choose_action(state, self.epsilon)
             next_state, reward, done, _, _ = env.step(action)
             episode.append((state, action, reward))
             state = next_state
