@@ -37,7 +37,6 @@ def main():
         done = False
         state, info = env.reset()  # Ensure the environment reset returns 'state'
         while not done:
-            # TODO - update choose_action method in MonteCarlo.py and DeepQLearning.py
             action = agent.choose_action(state)
             state, reward, done, truncated, info = env.step(action)
 

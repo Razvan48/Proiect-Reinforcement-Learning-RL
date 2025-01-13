@@ -1,6 +1,6 @@
 from Agents import DeepQLearning as DQL
 from Agents import MonteCarlo as MC
-# from Agents import ProximalPolicyOptimization as PPO
+from Agents import ProximalPolicyOptimization as PPO
 import gymnasium as gym
 
 class AgentManager:
