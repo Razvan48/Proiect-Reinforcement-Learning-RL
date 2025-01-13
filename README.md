@@ -8,12 +8,10 @@ Luculescu Teodor ($351$) <br/>
 
 ## Descriere:
 &emsp; Proiectul va consta in implementarea
-unor diversi agenti pentru Humanoid Environment (v5) (https://www.gymlibrary.dev/environments/mujoco/humanoid)
+unor diversi agenti pentru Humanoid Environment (versiunea 5) (https://www.gymlibrary.dev/environments/mujoco/humanoid)
 si compararea performantelor acestora.
 
-&emsp; Vom alege niste obiective pe care agentii vor fi nevoiti sa le implineasca
-(omul sa fie in stare sa alerge cu o anumita viteza, sa fie in stare sa evite obstacole)
-si vom compara performantele si implementarile.
+&emsp; Vom alege niste obiective pe care agentii vor fi nevoiti sa le implineasca si vom compara performantele si implementarile algoritmilor utilizati.
 
 ## Task List:
 * [x] Integrare Humanoid Environment si rulare.
