@@ -19,7 +19,7 @@ si compararea performantelor acestora.
     * [x] Monte Carlo
     * [x] Deep Q Learning
     * [x] Proximal Policy Optimization
-* [x] Documentatie.
+* [x] Documentatie
 
 <br/>
 <br/>
